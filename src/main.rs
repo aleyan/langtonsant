@@ -31,12 +31,12 @@ fn main() {
 
     let mut board: HashMap<Complex<i32>, Complex<i32>> = HashMap::new();
     let mut ant_position: Complex<i32> = Complex::new(0, 0);
-    let mut ant_direction: Complex<i32> = Complex::new(0, -1); 
+    let mut ant_direction: Complex<i32> = Complex::new(-1, 0);
 
     for _ in 0..15000 {
         let square_color = board.get(&ant_position).cloned().unwrap_or(white);
-        ant_direction = ant_direction * square_color;
-        board.insert(ant_position, -1 * square_color);
+        ant_direction =  ant_direction * square_color;
+        board.insert(ant_position, -square_color);
         ant_position = ant_position + ant_direction;
 
         //draw(&board);
@@ -50,13 +50,13 @@ fn main() {
                 let (top, bottom) = screen_to_complex(rows, columns, row, column);
                 let top_color = board.get(&top).cloned().unwrap_or(white);
                 let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
-                let symbol = if top_color.im == -1 && bottom_color.im == -1 {
+                let symbol = if top_color == white && bottom_color == white {
                     " "
-                } else if top_color.im == 1 && bottom_color.im == -1 {
+                } else if top_color != white && bottom_color == white {
                     "▀"
-                } else if top_color.im == -1 && bottom_color.im == 1 {
+                } else if top_color == white && bottom_color != white {
                     "▄"
-                } else if top_color.im == 1 && bottom_color.im == 1 {
+                } else if top_color != white && bottom_color != white {
                     "█"
                 }else {
                     "X"
@@ -77,15 +77,15 @@ fn main() {
 fn screen_to_complex(rows: i32, columns: i32, row: i32, column: i32) 
     -> (Complex<i32>, Complex<i32>) {
     let x = column - columns / 2;
-    let y = (row - rows / 2) * 2;
+    let y = (rows / 2 - row) * 2;
     let top: Complex<i32> = Complex::new(x, y);
-    let bottom: Complex<i32> = Complex::new(x, y + 1);
+    let bottom: Complex<i32> = Complex::new(x, y - 1);
     (top, bottom)
 }
 
 fn complex_to_screen(rows: i32, columns: i32, loc: Complex<i32>) -> (i32, i32) {
     let column = loc.re + columns / 2;
-    let row = loc.im / 2 + rows / 2;
+    let row = - loc.im / 2 + rows / 2;
     (column,row)
 }
 
