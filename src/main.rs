@@ -6,6 +6,7 @@ use num_complex::Complex;
 use termion::{terminal_size, style, clear, cursor, color};
 use termion::raw::{IntoRawMode};
 use std::io::{Write, stdout};
+use std::cmp::{min, max};
 
 fn main() {
     let stdout = stdout();
@@ -13,15 +14,26 @@ fn main() {
     let size = terminal_size().unwrap();
     let rows = (size.1 - 1) as i32;
     let columns = size.0 as i32;
-    write!(stdout, "{}{}", clear::All, cursor::Hide).unwrap();
+    write!(stdout, "{}{}{}{}",
+        clear::All,
+        cursor::Hide,
+        color::Bg(color::White),
+        color::Fg(color::Black),
+        ).unwrap();
+    for row in 1..(rows+1){
+        write!(stdout, "{}{}",
+            cursor::Goto(1,row as u16),
+            " ".repeat(columns as usize)).unwrap();
+    }
+    stdout.flush().unwrap();
 
     let white: Complex<i32> = Complex::new(0, -1);
 
     let mut board: HashMap<Complex<i32>, Complex<i32>> = HashMap::new();
     let mut ant_position: Complex<i32> = Complex::new(0, 0);
-    let mut ant_direction: Complex<i32> = Complex::new(0, 1); 
+    let mut ant_direction: Complex<i32> = Complex::new(0, -1); 
 
-    for _ in 0..500 {
+    for _ in 0..15000 {
         let square_color = board.get(&ant_position).cloned().unwrap_or(white);
         ant_direction = ant_direction * square_color;
         board.insert(ant_position, -1 * square_color);
@@ -29,17 +41,15 @@ fn main() {
 
         //draw(&board);
         // draw begins here
-
-        for row in 1..(rows + 1) {
-            write!(stdout, "{}{}{}",
-                cursor::Goto(1, row as u16),
-                color::Bg(color::White),
-                color::Fg(color::Black),
+        let (ant_column, ant_row) = complex_to_screen(rows, columns, ant_position);
+        for row in max(1, ant_row-1)..min(ant_row + 1, rows + 1) {
+            write!(stdout, "{}",
+                cursor::Goto(max(1, ant_column - 1) as u16, row as u16),
                 ).unwrap();
-            for column in 1..(columns + 1){
-                let locs = screen_to_complex(rows, columns, row, column);
-                let top_color = board.get(&locs.0).cloned().unwrap_or(white);
-                let bottom_color = board.get(&locs.1).cloned().unwrap_or(white);
+            for column in max(1, ant_column - 1)..min(ant_column + 1, columns + 1) {
+                let (top, bottom) = screen_to_complex(rows, columns, row, column);
+                let top_color = board.get(&top).cloned().unwrap_or(white);
+                let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
                 let symbol = if top_color.im == -1 && bottom_color.im == -1 {
                     " "
                 } else if top_color.im == 1 && bottom_color.im == -1 {
@@ -71,6 +81,12 @@ fn screen_to_complex(rows: i32, columns: i32, row: i32, column: i32)
     let top: Complex<i32> = Complex::new(x, y);
     let bottom: Complex<i32> = Complex::new(x, y + 1);
     (top, bottom)
+}
+
+fn complex_to_screen(rows: i32, columns: i32, loc: Complex<i32>) -> (i32, i32) {
+    let column = loc.re + columns / 2;
+    let row = loc.im / 2 + rows / 2;
+    (column,row)
 }
 
 //fn draw(board: &HashMap<Complex<i32>, Complex<i32>>) {
