@@ -5,3 +5,4 @@ authors = ["Alexander Yankov <yankov.alex@gmail.com>"]
 
 [dependencies]
 num-complex = "0.1"
+termion = "1.5"
