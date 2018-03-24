@@ -3,7 +3,7 @@ extern crate termion;
 
 use std::collections::HashMap;
 use num_complex::Complex;
-use termion::{terminal_size, cursor, color};
+use termion::{terminal_size, style, clear, cursor, color};
 use termion::raw::{IntoRawMode};
 use std::io::{Write, stdout};
 
@@ -13,6 +13,7 @@ fn main() {
     let size = terminal_size().unwrap();
     let rows = (size.1 - 1) as i32;
     let columns = size.0 as i32;
+    write!(stdout, "{}{}", clear::All, cursor::Hide).unwrap();
 
     let white: Complex<i32> = Complex::new(0, -1);
 
@@ -56,7 +57,11 @@ fn main() {
         stdout.flush().unwrap();
     }
     
-    write!(stdout, "{}{}", cursor::Goto(1, (rows + 1) as u16),termion::style::Reset).unwrap();
+    write!(stdout, "{}{}{}",
+        cursor::Goto(1, (rows + 1) as u16),
+        style::Reset,
+        cursor::Show
+        ).unwrap();
 }
 
 fn screen_to_complex(rows: i32, columns: i32, row: i32, column: i32) 
