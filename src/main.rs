@@ -16,7 +16,11 @@ fn main() {
         board.insert(ant_position, -1 * square_color);
         ant_position = ant_position + ant_direction;
 
-        println!("{}", board.len());
+        draw(&board);
     }
     
+}
+
+fn draw(board: &HashMap<Complex<i32>, Complex<i32>>) {
+    println!("{}", board.len());
 }
