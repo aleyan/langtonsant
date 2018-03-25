@@ -7,13 +7,14 @@ use termion::{terminal_size, style, clear, cursor, color};
 use termion::raw::{IntoRawMode};
 use std::io::{Write, stdout};
 use std::cmp::{min, max};
+use std::{thread, time};
 
 fn main() {
     let stdout = stdout();
     let mut stdout = stdout.lock().into_raw_mode().unwrap();
     let size = terminal_size().unwrap();
-    let rows = (size.1 - 1) as i32;
     let columns = size.0 as i32;
+    let rows = (size.1 - 1) as i32;
     write!(stdout, "{}{}{}{}",
         clear::All,
         cursor::Hide,
@@ -65,6 +66,7 @@ fn main() {
             }
         }
         stdout.flush().unwrap();
+        thread::sleep(time::Duration::from_millis(1));
     }
     
     write!(stdout, "{}{}{}",
@@ -77,7 +79,7 @@ fn main() {
 fn screen_to_complex(rows: i32, columns: i32, row: i32, column: i32) 
     -> (Complex<i32>, Complex<i32>) {
     let x = column - columns / 2;
-    let y = (rows / 2 - row) * 2;
+    let y = rows - row * 2;
     let top: Complex<i32> = Complex::new(x, y);
     let bottom: Complex<i32> = Complex::new(x, y - 1);
     (top, bottom)
@@ -85,7 +87,7 @@ fn screen_to_complex(rows: i32, columns: i32, row: i32, column: i32)
 
 fn complex_to_screen(rows: i32, columns: i32, loc: Complex<i32>) -> (i32, i32) {
     let column = loc.re + columns / 2;
-    let row = - loc.im / 2 + rows / 2;
+    let row = (-loc.im + rows) / 2;
     (column,row)
 }
 
