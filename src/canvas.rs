@@ -109,7 +109,7 @@ impl Canvas {
                     symbol
                     ).unwrap();
             };
-            thread::sleep(time::Duration::from_millis(1));
+            thread::sleep(time::Duration::from_millis(0));
         }
 
         stdout.flush().unwrap();
@@ -126,10 +126,10 @@ impl Canvas {
 
     fn screen_to_complex(&self, column: i32, row: i32)
         -> (Complex<i32>, Complex<i32>) {
-        let x = column - self.columns / 2;
-        let y = self.rows - row * 2;
-        let top: Complex<i32> = Complex::new(x, y);
-        let bottom: Complex<i32> = Complex::new(x, y - 1);
+        let re = column - self.columns / 2;
+        let im = self.rows - row * 2;
+        let top: Complex<i32> = Complex::new(re, im);
+        let bottom: Complex<i32> = Complex::new(re, im - 1);
         (top, bottom)
     }
 
