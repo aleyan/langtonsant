@@ -56,15 +56,15 @@ impl Canvas {
             let top_color = board.get(&top).cloned().unwrap_or(white);
             let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
             let symbol = if top_color == white && bottom_color == white {
-                " "
+                ' '
             } else if top_color != white && bottom_color == white {
-                "▀"
+                '▀'
             } else if top_color == white && bottom_color != white {
-                "▄"
+                '▄'
             } else if top_color != white && bottom_color != white {
-                "█"
+                '█'
             }else {
-                "X"
+                'X'
             };
             write!(stdout, "{}{}{}{}",
                 cursor::Goto(prev_column as u16, prev_row as u16),
@@ -81,48 +81,38 @@ impl Canvas {
                 ant_column, ant_row);
             let top_color = board.get(&top).cloned().unwrap_or(white);
             let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
-            let symbol = "▀";
+            let (symbol, bg_is_white) = 
+                if top == ant_position && bottom_color == white {
+                    ('▀', true)
+                } else if top == ant_position && bottom_color != white {
+                    ('▀', false)
+                } else if bottom == ant_position && top_color == white {
+                    ('▄', true)
+                } else if bottom == ant_position && top_color != white {
+                    ('▄', false)
+                } else {
+                    ('█', true)
+                };
 
-            if top == ant_position && bottom_color == white {
+            if bg_is_white {
                 write!(stdout, "{}{}{}{}",
                     cursor::Goto(ant_column as u16, ant_row as u16),
                     color::Fg(color::Red),
                     color::Bg(color::White),
                     symbol
                     ).unwrap();
-            } else if top == ant_position && bottom_color != white {
+            }  else {
                 write!(stdout, "{}{}{}{}",
                     cursor::Goto(ant_column as u16, ant_row as u16),
                     color::Fg(color::Red),
                     color::Bg(color::Black),
                     symbol
                     ).unwrap();
-            } else if bottom == ant_position && top_color == white {
-                write!(stdout, "{}{}{}{}",
-                    cursor::Goto(ant_column as u16, ant_row as u16),
-                    color::Fg(color::White),
-                    color::Bg(color::Red),
-                    symbol
-                    ).unwrap();
-            } else if bottom == ant_position && top_color != white {
-                write!(stdout, "{}{}{}{}",
-                    cursor::Goto(ant_column as u16, ant_row as u16),
-                    color::Fg(color::Black),
-                    color::Bg(color::Red),
-                    symbol
-                    ).unwrap();
-            } else {
-                write!(stdout, "{}{}{}{}",
-                    cursor::Goto(ant_column as u16, ant_row as u16),
-                    color::Fg(color::Blue),
-                    color::Bg(color::Blue),
-                    symbol
-                    ).unwrap();
             };
+            thread::sleep(time::Duration::from_millis(1));
         }
 
         stdout.flush().unwrap();
-        thread::sleep(time::Duration::from_millis(1));
     }
     pub(crate) fn close(&self){
         let stdout = stdout();
