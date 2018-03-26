@@ -91,7 +91,7 @@ impl Canvas {
                 } else if bottom == ant_position && top_color != white {
                     ('▄', false)
                 } else {
-                    ('█', true)
+                    ('X', true)
                 };
 
             if bg_is_white {
