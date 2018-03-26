@@ -81,35 +81,28 @@ impl Canvas {
                 ant_column, ant_row);
             let top_color = board.get(&top).cloned().unwrap_or(white);
             let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
-            let (symbol, bg_is_white) = 
+            let (fg_color, bg_color): (&color::Color, &color::Color) = 
                 if top == ant_position && bottom_color == white {
-                    ('▀', true)
+                    (&color::Red, &color::White)
                 } else if top == ant_position && bottom_color != white {
-                    ('▀', false)
+                    (&color::Red, &color::Black)
                 } else if bottom == ant_position && top_color == white {
-                    ('▄', true)
+                    (&color::White, &color::Red)
                 } else if bottom == ant_position && top_color != white {
-                    ('▄', false)
+                    (&color::Black, &color::Red)
                 } else {
-                    ('X', true)
+                    (&color::Blue, &color::Blue)
                 };
 
-            if bg_is_white {
-                write!(stdout, "{}{}{}{}",
-                    cursor::Goto(ant_column as u16, ant_row as u16),
-                    color::Fg(color::Red),
-                    color::Bg(color::White),
-                    symbol
-                    ).unwrap();
-            }  else {
-                write!(stdout, "{}{}{}{}",
-                    cursor::Goto(ant_column as u16, ant_row as u16),
-                    color::Fg(color::Red),
-                    color::Bg(color::Black),
-                    symbol
-                    ).unwrap();
-            };
-            thread::sleep(time::Duration::from_millis(0));
+
+            write!(stdout, "{}{}{}{}",
+                cursor::Goto(ant_column as u16, ant_row as u16),
+                color::Fg(fg_color),
+                color::Bg(bg_color),
+                '▀'
+                ).unwrap();
+
+            thread::sleep(time::Duration::from_millis(1));
         }
 
         stdout.flush().unwrap();
