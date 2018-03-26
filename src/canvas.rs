@@ -72,9 +72,11 @@ impl Canvas {
                 color::Bg(bg),
                 symbol
                 ).unwrap();
+
+            thread::sleep(time::Duration::from_millis(0));
         }
 
-            thread::sleep(time::Duration::from_millis(1));
+
 
         stdout.flush().unwrap();
     }

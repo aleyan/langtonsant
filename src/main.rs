@@ -22,7 +22,6 @@ fn main() {
         ant_position = ant_position + ant_direction;
 
         canvas.draw(&board, ant_position, ant_direction);
-
     }
     canvas.close();
 }
