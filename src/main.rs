@@ -21,7 +21,7 @@ fn main() {
         board.insert(ant_position, -square_color);
         ant_position = ant_position + ant_direction;
 
-        canvas.draw(&board, &ant_position, &ant_direction);
+        canvas.draw(&board, ant_position, ant_direction);
 
     }
     canvas.close();
