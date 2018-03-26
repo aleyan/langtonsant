@@ -6,13 +6,13 @@ use termion::{terminal_size, style, clear, cursor, color};
 use termion::raw::{IntoRawMode};
 use num_complex::Complex;
 
-pub(crate) struct Canvas {
+pub struct Canvas {
     columns: i32,
     rows: i32,
 }
 
 impl Canvas {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         let size = terminal_size().unwrap();
         let columns = size.0 as i32;
         let rows = (size.1 - 1) as i32;
@@ -37,77 +37,48 @@ impl Canvas {
         }
     }
 
-    pub(crate) fn draw(&self, board: &HashMap<Complex<i32>, Complex<i32>>, 
+    pub fn draw(&self, board: &HashMap<Complex<i32>, Complex<i32>>, 
         ant_position: Complex<i32>, ant_direction: Complex<i32>){
         let stdout = stdout();
         let mut stdout = stdout.lock().into_raw_mode().unwrap();
-        let white: Complex<i32> = Complex::new(0, -1);
+        let symbol = '▀';
 
-        let (ant_column, ant_row) = self.complex_to_screen(ant_position);
+        let cell_ant = self.complex_to_screen(ant_position);
 
         // Draw over the cell ant has left
-        let (prev_column, prev_row) = self.complex_to_screen(
+        let cell_prev = self.complex_to_screen(
             ant_position - ant_direction);
-        if (prev_column, prev_row) != (ant_column, ant_row)
-            && (1 <= prev_column) && (prev_column <= self.columns)
-            && (1 <= prev_row) && (prev_row <= self.rows) {
-            let (top, bottom) = self.screen_to_complex(
-                prev_column, prev_row);
-            let top_color = board.get(&top).cloned().unwrap_or(white);
-            let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
-            let symbol = if top_color == white && bottom_color == white {
-                ' '
-            } else if top_color != white && bottom_color == white {
-                '▀'
-            } else if top_color == white && bottom_color != white {
-                '▄'
-            } else if top_color != white && bottom_color != white {
-                '█'
-            }else {
-                'X'
-            };
+        if cell_ant != cell_prev
+            && (1 <= cell_prev.0) && (cell_prev.0 <= self.columns)
+            && (1 <= cell_prev.1) && (cell_prev.1 <= self.rows) {
+            let (fg, bg): (&color::Color, &color::Color) = self.cell_colors(
+                cell_prev, ant_position, board);
             write!(stdout, "{}{}{}{}",
-                cursor::Goto(prev_column as u16, prev_row as u16),
-                color::Fg(color::Black),
-                color::Bg(color::White),
+                cursor::Goto(cell_prev.0 as u16, cell_prev.1 as u16),
+                color::Fg(fg),
+                color::Bg(bg),
                 symbol
                 ).unwrap();
         }
 
         // Draw the ant
-        if (1 <= ant_column) && (ant_column <= self.columns)
-            && (1 <= ant_row) && (ant_row <= self.rows) {
-            let (top, bottom) = self.screen_to_complex(
-                ant_column, ant_row);
-            let top_color = board.get(&top).cloned().unwrap_or(white);
-            let bottom_color = board.get(&bottom).cloned().unwrap_or(white);
-            let (fg_color, bg_color): (&color::Color, &color::Color) = 
-                if top == ant_position && bottom_color == white {
-                    (&color::Red, &color::White)
-                } else if top == ant_position && bottom_color != white {
-                    (&color::Red, &color::Black)
-                } else if bottom == ant_position && top_color == white {
-                    (&color::White, &color::Red)
-                } else if bottom == ant_position && top_color != white {
-                    (&color::Black, &color::Red)
-                } else {
-                    (&color::Blue, &color::Blue)
-                };
-
-
+        if (1 <= cell_ant.0) && (cell_ant.0 <= self.columns)
+            && (1 <= cell_ant.1) && (cell_ant.1 <= self.rows) {
+            let (fg, bg): (&color::Color, &color::Color) = self.cell_colors(
+                cell_ant, ant_position, board);
             write!(stdout, "{}{}{}{}",
-                cursor::Goto(ant_column as u16, ant_row as u16),
-                color::Fg(fg_color),
-                color::Bg(bg_color),
-                '▀'
+                cursor::Goto(cell_ant.0 as u16, cell_ant.1 as u16),
+                color::Fg(fg),
+                color::Bg(bg),
+                symbol
                 ).unwrap();
+        }
 
             thread::sleep(time::Duration::from_millis(1));
-        }
 
         stdout.flush().unwrap();
     }
-    pub(crate) fn close(&self){
+    pub fn close(&self){
         let stdout = stdout();
         let mut stdout = stdout.lock().into_raw_mode().unwrap();
         write!(stdout, "{}{}{}",
@@ -115,6 +86,30 @@ impl Canvas {
             style::Reset,
             cursor::Show
             ).unwrap();
+    }
+    fn cell_colors(&self, cell_location: (i32, i32),
+        ant_position: Complex<i32>,
+        board: &HashMap<Complex<i32>, Complex<i32>>) 
+        -> (&color::Color, &color::Color) {
+        let (top, bottom) = self.screen_to_complex(
+            cell_location.0, cell_location.1);
+        (self.square_term_color(ant_position, top, &board),
+        self.square_term_color(ant_position, bottom, &board))
+    }
+
+    fn square_term_color(&self, ant_position: Complex<i32>,
+        square_position: Complex<i32>,
+        board: &HashMap<Complex<i32>, Complex<i32>>)
+        -> &color::Color {
+        let white: Complex<i32> = Complex::new(0, -1);
+        let square_color = board.get(&square_position).cloned().unwrap_or(white);
+        if ant_position == square_position {
+            &color::Red
+        } else if square_color == white {
+            &color::White
+        } else {
+            &color::Black
+        }
     }
 
     fn screen_to_complex(&self, column: i32, row: i32)
