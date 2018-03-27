@@ -11,24 +11,28 @@ mod canvas;
 
 fn main() {
     let matches = App::new("Langton's Ant")
-       .version(crate_version!())
-       .about("Simulates Langton's Ant in the terminal")
-       .author("Alex Yankov")
-       .arg(Arg::with_name("sleep")
-            .short("s")
-            .long("sleep")
-            .value_name("MILLISECONDS")
-            .default_value("0")
-            .help("Sets a custom sleep time between steps.")
-            .takes_value(true))
-       .arg(Arg::with_name("steps")
-            .short("m")
-            .long("maxsteps")
-            .value_name("STEPS")
-            .default_value("15000")
-            .help("Maximum number of steps ant takes before stopping.")
-            .takes_value(true))
-       .get_matches();
+        .version(crate_version!())
+        .about("Simulates Langton's Ant in the terminal")
+        .author("Alex Yankov")
+        .arg(
+            Arg::with_name("sleep")
+                .short("s")
+                .long("sleep")
+                .value_name("MILLISECONDS")
+                .default_value("0")
+                .help("Sets a custom sleep time between steps.")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("steps")
+                .short("m")
+                .long("maxsteps")
+                .value_name("STEPS")
+                .default_value("15000")
+                .help("Maximum number of steps ant takes before stopping.")
+                .takes_value(true),
+        )
+        .get_matches();
     let sleep_ms = value_t!(matches, "sleep", u64).unwrap();
     let max_steps = value_t!(matches, "steps", u64).unwrap();
 
@@ -42,7 +46,7 @@ fn main() {
 
     for _ in 0..max_steps {
         let square_color = board.get(&ant_position).cloned().unwrap_or(white);
-        ant_direction =  ant_direction * square_color;
+        ant_direction = ant_direction * square_color;
         board.insert(ant_position, -square_color);
         ant_position = ant_position + ant_direction;
 
