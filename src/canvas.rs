@@ -9,10 +9,11 @@ use num_complex::Complex;
 pub struct Canvas {
     columns: i32,
     rows: i32,
+    sleep_ms: u64
 }
 
 impl Canvas {
-    pub fn new() -> Self {
+    pub fn new(sleep_ms: u64) -> Self {
         let size = terminal_size().unwrap();
         let columns = size.0 as i32;
         let rows = (size.1 - 1) as i32;
@@ -34,6 +35,7 @@ impl Canvas {
         Canvas {
             columns: columns,
             rows: rows,
+            sleep_ms
         }
     }
 
@@ -49,8 +51,6 @@ impl Canvas {
         if cell_ant != cell_prev {
             self.draw_cell(cell_prev, ant_position, board);
         }
-
-        thread::sleep(time::Duration::from_millis(0));
     }
 
     pub fn close(&self){
@@ -86,6 +86,10 @@ impl Canvas {
             '▀'
             ).unwrap();
         stdout.flush().unwrap();
+
+        if (ant_position==top || ant_position==bottom) && self.sleep_ms != 0 {
+            thread::sleep(time::Duration::from_millis(self.sleep_ms));
+        }
     }
 
     fn square_term_color(&self, ant_position: Complex<i32>,
