@@ -18,17 +18,19 @@ fn main() {
             .short("s")
             .long("sleep")
             .value_name("MILLISECONDS")
+            .default_value("0")
             .help("Sets a custom sleep time between steps.")
             .takes_value(true))
        .arg(Arg::with_name("steps")
             .short("m")
             .long("maxsteps")
             .value_name("STEPS")
-            .help("Maximum number of steps to simulate before terminating.")
+            .default_value("15000")
+            .help("Maximum number of steps ant takes before stopping.")
             .takes_value(true))
        .get_matches();
-    let sleep_ms = value_t!(matches, "sleep", u64).unwrap_or(0);
-    let max_steps = value_t!(matches, "steps", u64).unwrap_or(15000);
+    let sleep_ms = value_t!(matches, "sleep", u64).unwrap();
+    let max_steps = value_t!(matches, "steps", u64).unwrap();
 
     let canvas = canvas::Canvas::new(sleep_ms);
 
