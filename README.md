@@ -1,8 +1,8 @@
 # Langton's Ant
 An implementation of [Langton's Ant](https://en.wikipedia.org/wiki/Langton%27s_ant)
 in Rust that runs from the terminal. Simply execute:
-```cargo run```.
-
+```cargo run```. Watch at a rate your eyes can follow with 
+```cargo run -- --maxsteps 500 --sleep 20```.
 
 ## Usage, Flags, & Options
 ```

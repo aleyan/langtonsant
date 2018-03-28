@@ -104,6 +104,7 @@ impl Canvas {
         ).unwrap();
         out.flush().unwrap();
 
+        // If the ant is visible and we are asked to sleep then we sleep.
         if (ant_position == top || ant_position == bottom) && self.sleep_ms != 0 {
             thread::sleep(time::Duration::from_millis(self.sleep_ms));
         }
