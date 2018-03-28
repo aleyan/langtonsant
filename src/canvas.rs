@@ -1,15 +1,17 @@
 use std::collections::HashMap;
-use std::io::{Write, stdout};
+use std::cell::RefCell;
+use std::io::{Write, Stdout, stdout};
 use std::{thread, time};
 
 use termion::{terminal_size, style, clear, cursor, color};
-use termion::raw::IntoRawMode;
+use termion::raw::{IntoRawMode,RawTerminal};
 use num_complex::Complex;
 
 pub struct Canvas {
     columns: i32,
     rows: i32,
     sleep_ms: u64,
+    stdout: RefCell<RawTerminal<Stdout>>,
 }
 
 impl Canvas {
@@ -19,7 +21,7 @@ impl Canvas {
         let rows = (size.1 - 1) as i32;
 
         let stdout = stdout();
-        let mut stdout = stdout.lock().into_raw_mode().unwrap();
+        let mut stdout = stdout.into_raw_mode().unwrap();
         write!(stdout, "{}{}{}{}",
             clear::All,
             cursor::Hide,
@@ -39,6 +41,7 @@ impl Canvas {
             columns: columns,
             rows: rows,
             sleep_ms,
+            stdout: RefCell::new(stdout) 
         }
     }
 
@@ -60,15 +63,15 @@ impl Canvas {
     }
 
     pub fn close(&self) {
-        let stdout = stdout();
-        let mut stdout = stdout.lock().into_raw_mode().unwrap();
+        let mut out = self.stdout.borrow_mut();
         write!(
-            stdout,
+            out,
             "{}{}{}",
             cursor::Goto(1, (self.rows + 1) as u16),
             style::Reset,
             cursor::Show
         ).unwrap();
+        out.flush().unwrap();
     }
 
     fn draw_cell(
@@ -90,17 +93,16 @@ impl Canvas {
                 self.square_term_color(ant_position, bottom, &board),
             );
 
-        let stdout = stdout();
-        let mut stdout = stdout.lock().into_raw_mode().unwrap();
+        let mut out = self.stdout.borrow_mut();
         write!(
-            stdout,
+            out,
             "{}{}{}{}",
             cursor::Goto(cell_location.0 as u16, cell_location.1 as u16),
             color::Fg(fg),
             color::Bg(bg),
             '▀'
         ).unwrap();
-        stdout.flush().unwrap();
+        out.flush().unwrap();
 
         if (ant_position == top || ant_position == bottom) && self.sleep_ms != 0 {
             thread::sleep(time::Duration::from_millis(self.sleep_ms));
