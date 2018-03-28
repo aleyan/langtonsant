@@ -17,8 +17,8 @@ pub struct Canvas {
 impl Canvas {
     pub fn new(sleep_ms: u64) -> Self {
         let size = terminal_size().unwrap();
-        let columns = size.0 as i32;
-        let rows = (size.1 - 1) as i32;
+        let columns = i32::from(size.0);
+        let rows = i32::from(size.1 - 1);
 
         let stdout = stdout();
         let mut stdout = stdout.into_raw_mode().unwrap();
@@ -38,8 +38,8 @@ impl Canvas {
         }
         stdout.flush().unwrap();
         Canvas {
-            columns: columns,
-            rows: rows,
+            columns,
+            rows,
             sleep_ms,
             stdout: RefCell::new(stdout) 
         }
@@ -89,8 +89,8 @@ impl Canvas {
         let (top, bottom) = self.screen_to_complex(cell_location.0, cell_location.1);
         let (fg, bg): (&color::Color, &color::Color) =
             (
-                self.square_term_color(ant_position, top, &board),
-                self.square_term_color(ant_position, bottom, &board),
+                self.square_term_color(ant_position, top, board),
+                self.square_term_color(ant_position, bottom, board),
             );
 
         let mut out = self.stdout.borrow_mut();

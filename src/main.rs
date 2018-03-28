@@ -46,9 +46,9 @@ fn main() {
 
     for _ in 0..max_steps {
         let square_color = board.get(&ant_position).cloned().unwrap_or(white);
-        ant_direction = ant_direction * square_color;
+        ant_direction *= square_color;
         board.insert(ant_position, -square_color);
-        ant_position = ant_position + ant_direction;
+        ant_position += ant_direction;
 
         canvas.draw(&board, ant_position, ant_direction);
     }
