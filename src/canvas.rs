@@ -54,12 +54,12 @@ impl Canvas {
         let cell_ant = self.complex_to_screen(ant_position);
         let cell_prev = self.complex_to_screen(ant_position - ant_direction);
 
-        // Draw the cell with the ant
-        self.draw_cell(cell_ant, ant_position, board);
         // Draw the cell where the ant was (to remove the red color)
         if cell_ant != cell_prev {
             self.draw_cell(cell_prev, ant_position, board);
         }
+        // Draw the cell with the ant
+        self.draw_cell(cell_ant, ant_position, board);
     }
 
     pub fn close(&self) {
