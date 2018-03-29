@@ -4,7 +4,7 @@ use std::io::{Write, Stdout, stdout};
 use std::{thread, time};
 
 use termion::{terminal_size, style, clear, cursor, color};
-use termion::raw::{IntoRawMode,RawTerminal};
+use termion::raw::{IntoRawMode, RawTerminal};
 use num_complex::Complex;
 
 pub struct Canvas {
@@ -41,7 +41,7 @@ impl Canvas {
             columns,
             rows,
             sleep_ms,
-            stdout: RefCell::new(stdout) 
+            stdout: RefCell::new(stdout),
         }
     }
 
