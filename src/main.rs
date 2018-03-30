@@ -1,7 +1,7 @@
-extern crate num_complex;
-extern crate termion;
 #[macro_use]
 extern crate clap;
+extern crate num_complex;
+extern crate termion;
 
 use std::collections::HashMap;
 use num_complex::Complex;
@@ -36,7 +36,13 @@ fn main() {
     let sleep_ms = value_t!(matches, "sleep", u64).unwrap();
     let max_steps = value_t!(matches, "steps", u64).unwrap();
 
-    let canvas = canvas::Canvas::new(sleep_ms);
+    let canvas = match canvas::Canvas::new(sleep_ms) {
+        Ok(canvas) => canvas,
+        Err(_) => {
+            println!("Error acquiring stdout.");
+            return;
+        }
+    };
 
     // We are going to be working on a complex plane where reals are the x
     // coordinate with positive reals representing right columns of the screen.
@@ -60,7 +66,12 @@ fn main() {
         board.insert(ant_position, -square_color); // Flip color of the square.
         ant_position += ant_direction; // Move the ant by its direction.
 
-        canvas.draw(&board, ant_position, ant_direction);
+        match canvas.draw(&board, ant_position, ant_direction) {
+            Ok(_) => {}
+            Err(_) => {
+                continue;
+            }
+        }
     }
-    canvas.close();
+    canvas.close().unwrap();
 }
