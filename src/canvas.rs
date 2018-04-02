@@ -49,7 +49,7 @@ impl Canvas {
 
     pub fn draw(
         &self,
-        board: &HashMap<Complex<i32>, Complex<i32>>,
+        board: &HashMap<Complex<i32>, usize>,
         ant_position: Complex<i32>,
         ant_direction: Complex<i32>,
     ) -> io::Result<()> {
@@ -84,7 +84,7 @@ impl Canvas {
         &self,
         cell_location: (i32, i32),
         ant_position: Complex<i32>,
-        board: &HashMap<Complex<i32>, Complex<i32>>,
+        board: &HashMap<Complex<i32>, usize>,
     ) -> io::Result<()> {
         if !((1 <= cell_location.0) && (cell_location.0 <= self.columns) && (1 <= cell_location.1)
             && (cell_location.1 <= self.rows))
@@ -121,16 +121,27 @@ impl Canvas {
         &self,
         ant_position: Complex<i32>,
         square_position: Complex<i32>,
-        board: &HashMap<Complex<i32>, Complex<i32>>,
+        board: &HashMap<Complex<i32>, usize>,
     ) -> &color::Color {
-        let white: Complex<i32> = Complex::new(0, -1);
-        let square_color = board.get(&square_position).cloned().unwrap_or(white);
         if ant_position == square_position {
-            &color::Red
-        } else if square_color == white {
-            &color::White
-        } else {
-            &color::Black
+            return &color::Black;
+        }
+        let square_color = board.get(&square_position).cloned().unwrap_or(0);
+        match square_color {
+            0  => &color::White,
+            1  => &color::Rgb(255,255,153),
+            2  => &color::Rgb(31,120,180),
+            3  => &color::Rgb(177,89,40),
+            4  => &color::Rgb(51,160,44),
+            5  => &color::Rgb(251,154,153),
+            6  => &color::Rgb(227,26,28),
+            7  => &color::Rgb(253,191,111),
+            8  => &color::Rgb(255,127,0),
+            9  => &color::Rgb(202,178,214),
+            10 => &color::Rgb(106,61,154),
+            11 => &color::Rgb(166,206,227),
+            12 => &color::Rgb(178,223,138),
+            _  => &color::Black,
         }
     }
 
