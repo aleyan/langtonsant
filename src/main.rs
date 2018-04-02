@@ -47,11 +47,25 @@ L - Turn 90 degrees to the left
 U - Turn 180 degrees
 N - No change")
                 .takes_value(true),
+            )
+        .arg(
+            Arg::with_name("fillterminal")
+                .short("f")
+                .long("fillterminal")
+                .help("Fills entire terminal. Does not skip last line.")
+        )
+        .arg(
+            Arg::with_name("invisibleant")
+                .short("i")
+                .long("invisibleant")
+                .help("Do not draw the ant.")
         )
         .get_matches();
     let sleep_ms = value_t!(matches, "sleep", u64).unwrap();
     let max_steps = value_t!(matches, "steps", u64).unwrap();
     let rotations = matches.value_of("rotations").unwrap();
+    let fill_terminal = matches.is_present("fillterminal");
+    let draw_ant = !matches.is_present("invisibleant");
 
     let mut states: Vec<Complex<i32>> = Vec::new();
     for c in rotations.chars() {
@@ -69,7 +83,7 @@ N - No change")
     }
     let states = states.clone();
 
-    let canvas = match canvas::Canvas::new(sleep_ms) {
+    let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant) {
         Ok(canvas) => canvas,
         Err(_) => {
             println!("Error acquiring stdout.");

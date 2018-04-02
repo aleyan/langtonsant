@@ -12,13 +12,19 @@ pub struct Canvas {
     columns: i32,
     rows: i32,
     sleep_ms: u64,
+    draw_ant: bool,
     stdout: RefCell<RawTerminal<Stdout>>,
 }
 
 impl Canvas {
-    pub fn new(sleep_ms: u64) -> io::Result<Self> {
+    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool)
+     -> io::Result<Self> {
         let size = terminal_size()?;
-        let (columns, rows) = (i32::from(size.0), i32::from(size.1 - 1));
+
+        let (columns, rows) = match fill_terminal {
+            true => (i32::from(size.0), i32::from(size.1)),
+            false => (i32::from(size.0), i32::from(size.1 - 1))
+        };
 
         let stdout = stdout();
         let mut stdout = stdout.into_raw_mode()?;
@@ -37,12 +43,16 @@ impl Canvas {
                 cursor::Goto(1, row as u16),
                 " ".repeat(columns as usize)
             )?;
+            if row % 5 == 0 {
+                stdout.flush()?;
+            }
         }
         stdout.flush()?;
         Ok(Canvas {
             columns,
             rows,
             sleep_ms,
+            draw_ant,
             stdout: RefCell::new(stdout),
         })
     }
@@ -56,12 +66,13 @@ impl Canvas {
         let cell_ant = self.complex_to_screen(ant_position);
         let cell_prev = self.complex_to_screen(ant_position - ant_direction);
 
-        // Draw the cell where the ant was (to remove the red color)
-        if cell_ant != cell_prev {
-            self.draw_cell(cell_prev, ant_position, board)?;
+        // Draw the cell where the ant was because it changed color
+        self.draw_cell(cell_prev, ant_position, board)?;
+
+        // Draw the cell with the ant if it is a different cell
+        if self.draw_ant && cell_ant != cell_prev {
+            self.draw_cell(cell_ant, ant_position, board)?;
         }
-        // Draw the cell with the ant
-        self.draw_cell(cell_ant, ant_position, board)?;
 
         Ok(())
     }
@@ -123,7 +134,7 @@ impl Canvas {
         square_position: Complex<i32>,
         board: &HashMap<Complex<i32>, usize>,
     ) -> &color::Color {
-        if ant_position == square_position {
+        if self.draw_ant && ant_position == square_position {
             return &color::Black;
         }
         let square_color = board.get(&square_position).cloned().unwrap_or(0);
