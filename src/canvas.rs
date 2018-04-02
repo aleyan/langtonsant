@@ -17,13 +17,12 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool)
-     -> io::Result<Self> {
+    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool) -> io::Result<Self> {
         let size = terminal_size()?;
 
         let (columns, rows) = match fill_terminal {
             true => (i32::from(size.0), i32::from(size.1)),
-            false => (i32::from(size.0), i32::from(size.1 - 1))
+            false => (i32::from(size.0), i32::from(size.1 - 1)),
         };
 
         let stdout = stdout();
@@ -139,20 +138,20 @@ impl Canvas {
         }
         let square_color = board.get(&square_position).cloned().unwrap_or(0);
         match square_color {
-            0  => &color::White,
-            1  => &color::Rgb(106,61,154),
-            2  => &color::Rgb(31,120,180),
-            3  => &color::Rgb(177,89,40),
-            4  => &color::Rgb(51,160,44),
-            5  => &color::Rgb(251,154,153),
-            6  => &color::Rgb(227,26,28),
-            7  => &color::Rgb(253,191,111),
-            8  => &color::Rgb(255,127,0),
-            9  => &color::Rgb(202,178,214),
-            10 => &color::Rgb(153,255,153),
-            11 => &color::Rgb(166,206,227),
-            12 => &color::Rgb(178,223,138),
-            _  => &color::Black,
+            0 => &color::White,
+            1 => &color::Rgb(106, 61, 154),
+            2 => &color::Rgb(31, 120, 180),
+            3 => &color::Rgb(177, 89, 40),
+            4 => &color::Rgb(51, 160, 44),
+            5 => &color::Rgb(251, 154, 153),
+            6 => &color::Rgb(227, 26, 28),
+            7 => &color::Rgb(253, 191, 111),
+            8 => &color::Rgb(255, 127, 0),
+            9 => &color::Rgb(202, 178, 214),
+            10 => &color::Rgb(153, 255, 153),
+            11 => &color::Rgb(166, 206, 227),
+            12 => &color::Rgb(178, 223, 138),
+            _ => &color::Black,
         }
     }
 

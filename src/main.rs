@@ -38,27 +38,29 @@ fn main() {
                 .long("rotations")
                 .value_name("SEQUENCE")
                 .default_value("RL")
-                .help("A sequence of states of squares that the ant advances by
+                .help(
+                    "A sequence of states of squares that the ant advances by
 one with every visit. The state of the square rotates the
 ant as encoded in this sequence. The first element of the
 sequence initially covers the entire board. Valid elements:
 R - Turn 90 degrees to the right
 L - Turn 90 degrees to the left
 U - Turn 180 degrees
-N - No change")
+N - No change",
+                )
                 .takes_value(true),
-            )
+        )
         .arg(
             Arg::with_name("fillterminal")
                 .short("f")
                 .long("fillterminal")
-                .help("Fills entire terminal. Does not skip last line.")
+                .help("Fills entire terminal. Does not skip last line."),
         )
         .arg(
             Arg::with_name("invisibleant")
                 .short("i")
                 .long("invisibleant")
-                .help("Do not draw the ant.")
+                .help("Do not draw the ant."),
         )
         .get_matches();
     let sleep_ms = value_t!(matches, "sleep", u64).unwrap();
@@ -74,10 +76,10 @@ N - No change")
             'L' => Complex::new(0, 1),
             'U' => Complex::new(-1, 0),
             'N' => Complex::new(1, 0),
-             _  => {
+            _ => {
                 println!("Error. Invalid rotation.");
                 return;
-             }
+            }
         };
         states.push(rotation);
     }
@@ -105,7 +107,7 @@ N - No change")
         // Get the color of the square under the ant. Default to white.
         let square_color = board.get(&ant_position).cloned().unwrap_or(0);
         ant_direction *= states[square_color]; // Rotate by the state of square.
-        //Advance the state of the square by 1, possible wrap to back to 0
+                                               //Advance the state of the square by 1, possible wrap to back to 0
         board.insert(ant_position, (square_color + 1) % states.len());
         ant_position += ant_direction; // Move the ant by its direction.
 
