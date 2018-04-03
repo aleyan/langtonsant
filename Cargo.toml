@@ -7,3 +7,4 @@ authors = ["Alexander Yankov <yankov.alex@gmail.com>"]
 num-complex = "0.1"
 termion = "1.5"
 clap = "2.31"
+palette = "0.3.0"

@@ -68,13 +68,12 @@ ants with `--rotations` option like so:
 * LRRRRL - very slowly growing symmetric shape inside a square
 * LRUURR - blob with 4 wide arms growing out of it
 * LULLLL - Spiral
-* LUUURN - quickly expanding rhombus
+* LUUURN - quickly expanding square turned on a corner
 * LUUUUR - medium sized oscillator
 * ULLL - Three colored rectangle
 * ULLLL -  Cutoff parallelogram
 * ULLLU - very quickly expanding square
 * ULRRUR - forms a triangle
 * UNLUL - forms a an expanding rhombus frame
-* UNLUR - forms a right triangle frame
 * URLRUL - Tiny oscillator
 * URRLNL - forms a single wide highway after growing chaotically

@@ -2,6 +2,7 @@
 extern crate clap;
 extern crate num_complex;
 extern crate termion;
+extern crate palette;
 
 use std::collections::HashMap;
 use num_complex::Complex;
@@ -85,7 +86,7 @@ N - No change",
     }
     let states = states.clone();
 
-    let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant) {
+    let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant, states.len()) {
         Ok(canvas) => canvas,
         Err(_) => {
             println!("Error acquiring stdout.");

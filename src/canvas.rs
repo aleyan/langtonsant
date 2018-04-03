@@ -7,17 +7,19 @@ use std::{thread, time};
 use termion::{clear, color, cursor, style, terminal_size};
 use termion::raw::{IntoRawMode, RawTerminal};
 use num_complex::Complex;
+use palette::{Srgb, LinSrgb, Hsv, Lch, Gradient, Shade};
 
 pub struct Canvas {
     columns: i32,
     rows: i32,
     sleep_ms: u64,
     draw_ant: bool,
+    colors: Vec<(u8, u8, u8)>,
     stdout: RefCell<RawTerminal<Stdout>>,
 }
 
 impl Canvas {
-    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool) -> io::Result<Self> {
+    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool, number_of_states: usize) -> io::Result<Self> {
         let size = terminal_size()?;
 
         let (columns, rows) = match fill_terminal {
@@ -52,6 +54,7 @@ impl Canvas {
             rows,
             sleep_ms,
             draw_ant,
+            colors: Canvas::generate_colors(number_of_states),
             stdout: RefCell::new(stdout),
         })
     }
@@ -103,7 +106,7 @@ impl Canvas {
         }
 
         let (top, bottom) = self.screen_to_complex(cell_location.0, cell_location.1);
-        let (fg, bg): (&color::Color, &color::Color) = (
+        let (fg, bg): ((u8, u8, u8), (u8, u8, u8)) = (
             self.square_term_color(ant_position, top, board),
             self.square_term_color(ant_position, bottom, board),
         );
@@ -113,8 +116,8 @@ impl Canvas {
             out,
             "{}{}{}{}",
             cursor::Goto(cell_location.0 as u16, cell_location.1 as u16),
-            color::Fg(fg),
-            color::Bg(bg),
+            color::Fg(color::Rgb(fg.0, fg.1, fg.2)),
+            color::Bg(color::Rgb(bg.0, bg.1, bg.2)),
             '▀'
         )?;
         out.flush()?;
@@ -132,27 +135,12 @@ impl Canvas {
         ant_position: Complex<i32>,
         square_position: Complex<i32>,
         board: &HashMap<Complex<i32>, usize>,
-    ) -> &color::Color {
+    ) -> (u8, u8, u8) {
         if self.draw_ant && ant_position == square_position {
-            return &color::Black;
+            return (0, 0, 0); //The ant is black
         }
-        let square_color = board.get(&square_position).cloned().unwrap_or(0);
-        match square_color {
-            0 => &color::White,
-            1 => &color::Rgb(106, 61, 154),
-            2 => &color::Rgb(31, 120, 180),
-            3 => &color::Rgb(177, 89, 40),
-            4 => &color::Rgb(51, 160, 44),
-            5 => &color::Rgb(251, 154, 153),
-            6 => &color::Rgb(227, 26, 28),
-            7 => &color::Rgb(253, 191, 111),
-            8 => &color::Rgb(255, 127, 0),
-            9 => &color::Rgb(202, 178, 214),
-            10 => &color::Rgb(153, 255, 153),
-            11 => &color::Rgb(166, 206, 227),
-            12 => &color::Rgb(178, 223, 138),
-            _ => &color::Black,
-        }
+        let cell_state = board.get(&square_position).cloned().unwrap_or(0);
+        self.colors[cell_state]
     }
 
     fn screen_to_complex(&self, column: i32, row: i32) -> (Complex<i32>, Complex<i32>) {
@@ -167,5 +155,29 @@ impl Canvas {
         let column = loc.re + self.columns / 2;
         let row = (-loc.im + self.rows) / 2;
         (column, row)
+    }
+
+    fn generate_colors(number_of_states: usize) -> Vec<(u8, u8, u8)> {
+        let mut colors: Vec<(u8, u8, u8)> = Vec::new();
+        colors.push((255,255,255)); //First color is always white
+
+        let gradient = Gradient::new(vec![
+            Lch::from(LinSrgb::new(0.1, 0.1, 1.0)),
+            Lch::from(LinSrgb::new(0.1, 1.0, 0.1)),
+            Lch::from(LinSrgb::new(1.0, 0.1, 0.1))
+        ]);
+        //let colors = gradient.take(number_of_states);
+        for (n, color) in gradient.take(number_of_states - 1).enumerate() {
+            let color = if number_of_states > 9 && n % 3 == 0 {
+                color.lighten(0.2)
+            } else if number_of_states > 9 && n % 3 == 1 {
+                color.darken(0.2)
+            } else {
+                color
+            };
+            colors.push(Srgb::linear_to_pixel(color));
+        }
+
+        colors.clone()
     }
 }
