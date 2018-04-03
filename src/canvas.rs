@@ -6,8 +6,8 @@ use std::{thread, time};
 
 use termion::{clear, color, cursor, style, terminal_size};
 use termion::raw::{IntoRawMode, RawTerminal};
-use num_complex::Complex;
-use palette::{Srgb, LinSrgb, Hsv, Lch, Gradient, Shade};
+use nalgebra::{Vector2};
+use palette::{Srgb, LinSrgb, Lch, Gradient, Shade};
 
 pub struct Canvas {
     columns: i32,
@@ -61,9 +61,9 @@ impl Canvas {
 
     pub fn draw(
         &self,
-        board: &HashMap<Complex<i32>, usize>,
-        ant_position: Complex<i32>,
-        ant_direction: Complex<i32>,
+        board: &HashMap<Vector2<i32>, usize>,
+        ant_position: Vector2<i32>,
+        ant_direction: Vector2<i32>,
     ) -> io::Result<()> {
         let cell_ant = self.complex_to_screen(ant_position);
         let cell_prev = self.complex_to_screen(ant_position - ant_direction);
@@ -96,8 +96,8 @@ impl Canvas {
     fn draw_cell(
         &self,
         cell_location: (i32, i32),
-        ant_position: Complex<i32>,
-        board: &HashMap<Complex<i32>, usize>,
+        ant_position: Vector2<i32>,
+        board: &HashMap<Vector2<i32>, usize>,
     ) -> io::Result<()> {
         if !((1 <= cell_location.0) && (cell_location.0 <= self.columns) && (1 <= cell_location.1)
             && (cell_location.1 <= self.rows))
@@ -132,9 +132,9 @@ impl Canvas {
 
     fn square_term_color(
         &self,
-        ant_position: Complex<i32>,
-        square_position: Complex<i32>,
-        board: &HashMap<Complex<i32>, usize>,
+        ant_position: Vector2<i32>,
+        square_position: Vector2<i32>,
+        board: &HashMap<Vector2<i32>, usize>,
     ) -> (u8, u8, u8) {
         if self.draw_ant && ant_position == square_position {
             return (0, 0, 0); //The ant is black
@@ -143,17 +143,17 @@ impl Canvas {
         self.colors[cell_state]
     }
 
-    fn screen_to_complex(&self, column: i32, row: i32) -> (Complex<i32>, Complex<i32>) {
-        let re = column - self.columns / 2;
-        let im = self.rows - row * 2;
-        let top: Complex<i32> = Complex::new(re, im);
-        let bottom: Complex<i32> = Complex::new(re, im - 1);
+    fn screen_to_complex(&self, column: i32, row: i32) -> (Vector2<i32>, Vector2<i32>) {
+        let x = column - self.columns / 2;
+        let y = self.rows - row * 2;
+        let top: Vector2<i32> = Vector2::new(x, y);
+        let bottom: Vector2<i32> = Vector2::new(x, y - 1);
         (top, bottom)
     }
 
-    fn complex_to_screen(&self, loc: Complex<i32>) -> (i32, i32) {
-        let column = loc.re + self.columns / 2;
-        let row = (-loc.im + self.rows) / 2;
+    fn complex_to_screen(&self, cell: Vector2<i32>) -> (i32, i32) {
+        let column = cell.x + self.columns / 2;
+        let row = (-cell.y + self.rows) / 2;
         (column, row)
     }
 

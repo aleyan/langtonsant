@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate clap;
-extern crate num_complex;
 extern crate termion;
 extern crate palette;
+extern crate nalgebra;
 
+use nalgebra::{Vector2, Matrix2};//, Vector3, Matrix3};
 use std::collections::HashMap;
-use num_complex::Complex;
 use clap::{App, Arg};
 
 mod canvas;
@@ -70,13 +70,13 @@ N - No change",
     let fill_terminal = matches.is_present("fillterminal");
     let draw_ant = !matches.is_present("invisibleant");
 
-    let mut states: Vec<Complex<i32>> = Vec::new();
+    let mut states: Vec<Matrix2<i32>> = Vec::new();
     for c in rotations.chars() {
         let rotation = match c {
-            'R' => Complex::new(0, -1),
-            'L' => Complex::new(0, 1),
-            'U' => Complex::new(-1, 0),
-            'N' => Complex::new(1, 0),
+            'R' => Matrix2::new(0, 1,-1, 0),
+            'L' => Matrix2::new(0, -1,1, 0),
+            'U' => Matrix2::new(-1, 0,0, -1),
+            'N' => Matrix2::new(1, 0,0, 1),
             _ => {
                 println!("Error. Invalid rotation.");
                 return;
@@ -100,15 +100,16 @@ N - No change",
     // representing higher rows of the screen.
 
     // Use a HashMap because it grows O(n) with number of steps taken by ant.
-    let mut board: HashMap<Complex<i32>, usize> = HashMap::new();
-    let mut ant_position: Complex<i32> = Complex::new(0, 0); // Ant is at origin
-    let mut ant_direction: Complex<i32> = Complex::new(-1, 0); // facing left.
+    let mut board: HashMap<Vector2<i32>, usize> = HashMap::new();
+    let mut ant_position: Vector2<i32> = Vector2::new(0, 0); // Ant is at origin
+    let mut ant_direction: Vector2<i32> = Vector2::new(-1, 0); // facing left.
 
     for _ in 0..max_steps {
         // Get the color of the square under the ant. Default to white.
         let square_color = board.get(&ant_position).cloned().unwrap_or(0);
-        ant_direction *= states[square_color]; // Rotate by the state of square.
-                                               //Advance the state of the square by 1, possible wrap to back to 0
+        // Rotate by the state of square.
+        ant_direction = states[square_color] * ant_direction;
+        //Advance the state of the square by 1, possible wrap to back to 0
         board.insert(ant_position, (square_color + 1) % states.len());
         ant_position += ant_direction; // Move the ant by its direction.
 

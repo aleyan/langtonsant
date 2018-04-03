@@ -1,3 +1,4 @@
 /screenshots/**
 /target/
 **/*.rs.bk
+**.ipynb
