@@ -4,8 +4,8 @@ extern crate termion;
 extern crate palette;
 extern crate nalgebra;
 
-use nalgebra::{Vector2, Matrix2};//, Vector3, Matrix3};
-use std::collections::HashMap;
+use nalgebra::{Matrix2};//, Vector3, Matrix3};
+
 use clap::{App, Arg};
 
 mod canvas;
@@ -95,6 +95,6 @@ N - No change",
         }
     };
 
-    let sim = simulator::Simulator::new(canvas, states, max_steps);
-    sim.simulate();
+    let sim = simulator::Simulator::new(canvas, states);
+    sim.simulate(max_steps);
 }

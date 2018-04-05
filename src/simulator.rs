@@ -6,21 +6,20 @@ use canvas;
 pub struct Simulator {
     canvas: canvas::Canvas,
     states: Vec<Matrix2<i32>>,
-    max_steps: u64,
 }
 
 impl Simulator {
-    pub fn new(canvas: canvas::Canvas, states: Vec<Matrix2<i32>>, max_steps: u64) -> Self{
-        Simulator{canvas, states, max_steps}
+    pub fn new(canvas: canvas::Canvas, states: Vec<Matrix2<i32>>) -> Self{
+        Simulator{canvas, states}
     }
 
-    pub fn simulate(&self){
+    pub fn simulate(&self, steps: u64){
             // Use a HashMap because it grows O(n) with number of steps taken by ant.
         let mut board: HashMap<Vector2<i32>, usize> = HashMap::new();
         let mut ant_position: Vector2<i32> = Vector2::new(0, 0); // Ant is at origin
         let mut ant_direction: Vector2<i32> = Vector2::new(-1, 0); // facing left.
 
-        for _ in 0..self.max_steps {
+        for _ in 0..steps {
             // Get the color of the square under the ant. Default to white.
             let square_color = board.get(&ant_position).cloned().unwrap_or(0);
             // Rotate by the state of square.
