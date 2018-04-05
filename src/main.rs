@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use clap::{App, Arg};
 
 mod canvas;
+mod simulator;
 
 fn main() {
     let matches = App::new("Langton's Ant")
@@ -94,31 +95,6 @@ N - No change",
         }
     };
 
-    // We are going to be working on a complex plane where reals are the x
-    // coordinate with positive reals representing right columns of the screen.
-    // Imaginary component represents the y coordinate with positive values
-    // representing higher rows of the screen.
-
-    // Use a HashMap because it grows O(n) with number of steps taken by ant.
-    let mut board: HashMap<Vector2<i32>, usize> = HashMap::new();
-    let mut ant_position: Vector2<i32> = Vector2::new(0, 0); // Ant is at origin
-    let mut ant_direction: Vector2<i32> = Vector2::new(-1, 0); // facing left.
-
-    for _ in 0..max_steps {
-        // Get the color of the square under the ant. Default to white.
-        let square_color = board.get(&ant_position).cloned().unwrap_or(0);
-        // Rotate by the state of square.
-        ant_direction = states[square_color] * ant_direction;
-        //Advance the state of the square by 1, possible wrap to back to 0
-        board.insert(ant_position, (square_color + 1) % states.len());
-        ant_position += ant_direction; // Move the ant by its direction.
-
-        match canvas.draw(&board, ant_position, ant_direction) {
-            Ok(_) => {}
-            Err(_) => {
-                continue;
-            }
-        }
-    }
-    canvas.close().unwrap();
+    let sim = simulator::Simulator::new(canvas, states, max_steps);
+    sim.simulate();
 }
