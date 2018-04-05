@@ -9,8 +9,24 @@ pub struct Simulator {
 }
 
 impl Simulator {
-    pub fn new(canvas: canvas::Canvas, states: Vec<Matrix2<i32>>) -> Self{
-        Simulator{canvas, states}
+    pub fn new(canvas: canvas::Canvas, rotations: &str) -> Result<Self, &'static str>{
+        let mut states: Vec<Matrix2<i32>> = Vec::new();
+        for c in rotations.chars() {
+            let rotation = match c {
+                'R' => Matrix2::new(0, 1,-1, 0),
+                'L' => Matrix2::new(0, -1,1, 0),
+                'U' => Matrix2::new(-1, 0,0, -1),
+                'N' => Matrix2::new(1, 0,0, 1),
+                _ => {
+                    return Err("Error. Invalid rotation.");
+                }
+            };
+            states.push(rotation);
+        }
+        let states = states.clone();
+
+        Ok(Simulator{canvas, 
+            states: states.clone()})
     }
 
     pub fn simulate(&self, steps: u64){

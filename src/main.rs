@@ -4,8 +4,6 @@ extern crate termion;
 extern crate palette;
 extern crate nalgebra;
 
-use nalgebra::{Matrix2};//, Vector3, Matrix3};
-
 use clap::{App, Arg};
 
 mod canvas;
@@ -41,8 +39,8 @@ fn main() {
                 .value_name("SEQUENCE")
                 .default_value("RL")
                 .help(
-                    "A sequence of states of squares that the ant advances by
-one with every visit. The state of the square rotates the
+                    "A sequence of states of cell that the ant advances by
+one with every visit. The state of the cells rotates the
 ant as encoded in this sequence. The first element of the
 sequence initially covers the entire board. Valid elements:
 R - Turn 90 degrees to the right
@@ -71,23 +69,9 @@ N - No change",
     let fill_terminal = matches.is_present("fillterminal");
     let draw_ant = !matches.is_present("invisibleant");
 
-    let mut states: Vec<Matrix2<i32>> = Vec::new();
-    for c in rotations.chars() {
-        let rotation = match c {
-            'R' => Matrix2::new(0, 1,-1, 0),
-            'L' => Matrix2::new(0, -1,1, 0),
-            'U' => Matrix2::new(-1, 0,0, -1),
-            'N' => Matrix2::new(1, 0,0, 1),
-            _ => {
-                println!("Error. Invalid rotation.");
-                return;
-            }
-        };
-        states.push(rotation);
-    }
-    let states = states.clone();
 
-    let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant, states.len()) {
+
+    let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant, rotations.len()) {
         Ok(canvas) => canvas,
         Err(_) => {
             println!("Error acquiring stdout.");
@@ -95,6 +79,6 @@ N - No change",
         }
     };
 
-    let sim = simulator::Simulator::new(canvas, states);
+    let sim = simulator::Simulator::new(canvas, rotations).unwrap();
     sim.simulate(max_steps);
 }
