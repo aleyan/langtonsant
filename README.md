@@ -77,3 +77,4 @@ ants with `--rotations` option like so:
 * UNLUL - forms a an expanding rhombus frame
 * URLRUL - Tiny oscillator
 * URRLNL - forms a single wide highway after growing chaotically
+* LLLLRRRRRLLLLLLRLRLRRRLRLRL - Forms a highway after a long period of chaotic growth (400000 steps)
