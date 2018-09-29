@@ -7,4 +7,4 @@ authors = ["Alexander Yankov <yankov.alex@gmail.com>"]
 termion = "1.5"
 clap = "2.31"
 palette = "0.3.0"
-nalgebra = "0.14.1"
+nalgebra = "0.16.4"
