@@ -79,6 +79,7 @@ N - No change",
         }
     };
 
-    let sim = simulator::Simulator::new(canvas, rotations).unwrap();
-    sim.simulate(max_steps);
+    let sim = simulator::Simulator::new(rotations).unwrap();
+    sim.simulate(&canvas, max_steps);
+    canvas.close().unwrap();
 }
