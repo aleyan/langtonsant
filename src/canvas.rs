@@ -79,20 +79,6 @@ impl Canvas {
         Ok(())
     }
 
-    pub fn close(&self) -> io::Result<()> {
-        let mut out = self.stdout.borrow_mut();
-        write!(
-            out,
-            "{}{}{}",
-            cursor::Goto(1, (self.rows + 1) as u16),
-            style::Reset,
-            cursor::Show
-        )?;
-        out.flush()?;
-
-        Ok(())
-    }
-
     fn draw_cell(
         &self,
         cell_location: (i32, i32),
@@ -179,5 +165,19 @@ impl Canvas {
         }
 
         colors.clone()
+    }
+}
+
+impl Drop for Canvas{
+    fn drop(&mut self){
+        let mut out = self.stdout.borrow_mut();
+        write!(
+            out,
+            "{}{}{}",
+            cursor::Goto(1, (self.rows + 1) as u16),
+            style::Reset,
+            cursor::Show
+        );
+        let _ = out.flush();
     }
 }
