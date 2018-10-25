@@ -79,6 +79,6 @@ N - No change",
         }
     };
 
-    let sim = simulator::Simulator::new(rotations).unwrap();
+    let mut sim = simulator::Simulator::new(rotations).unwrap();
     sim.simulate(&canvas, max_steps);
 }
