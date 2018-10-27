@@ -1,14 +1,12 @@
 use nalgebra::{Vector2, Matrix2};//, Vector3, Matrix3};
 use std::collections::HashMap;
 
-use canvas;
-
 pub struct Simulator {
     states: Vec<Matrix2<i32>>,
     // Use a HashMap because it grows O(n) with number of steps taken by ant.
-    board: HashMap<Vector2<i32>, usize>,
-    ant_position: Vector2<i32>,
-    ant_direction: Vector2<i32>,
+    pub board: HashMap<Vector2<i32>, usize>,
+    pub ant_position: Vector2<i32>,
+    pub ant_direction: Vector2<i32>,
 }
 
 impl Simulator {
@@ -34,22 +32,14 @@ impl Simulator {
                 })
     }
 
-    pub fn simulate(&mut self, canvas: &canvas::Canvas, steps: u64){
-        for _ in 0..steps {
-            // Get the color of the square under the ant. Default to white.
-            let square_color = self.board.get(&self.ant_position).cloned().unwrap_or(0);
-            // Rotate by the state of square.
-            self.ant_direction = self.states[square_color] * self.ant_direction;
-            //Advance the state of the square by 1, possible wrap to back to 0
-            self.board.insert(self.ant_position, (square_color + 1) % self.states.len());
-            self.ant_position += self.ant_direction; // Move the ant by its direction.
+    pub fn simulate(&mut self){
 
-            match canvas.draw(&self.board, self.ant_position, self.ant_direction) {
-                Ok(_) => {}
-                Err(_) => {
-                    continue;
-                }
-            }
-        }
+        // Get the color of the square under the ant. Default to white.
+        let square_color = self.board.get(&self.ant_position).cloned().unwrap_or(0);
+        // Rotate by the state of square.
+        self.ant_direction = self.states[square_color] * self.ant_direction;
+        //Advance the state of the square by 1, possible wrap to back to 0
+        self.board.insert(self.ant_position, (square_color + 1) % self.states.len());
+        self.ant_position += self.ant_direction; // Move the ant by its direction.
     }
 }

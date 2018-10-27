@@ -80,5 +80,8 @@ N - No change",
     };
 
     let mut sim = simulator::Simulator::new(rotations).unwrap();
-    sim.simulate(&canvas, max_steps);
+    for _ in 0..max_steps {
+        sim.simulate();
+        let _ = canvas.draw(&sim.board, sim.ant_position, sim.ant_direction);
+    }
 }
