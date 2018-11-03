@@ -161,7 +161,7 @@ impl Canvas {
             } else {
                 color
             };
-            colors.push(Srgb::linear_to_pixel(color));
+            colors.push(Srgb::from_linear(color.into()).into_format().into_components());
         }
 
         colors.clone()
