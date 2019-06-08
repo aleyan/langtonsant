@@ -1,13 +1,13 @@
-use std::collections::HashMap;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::io;
 use std::io::{stdout, Stdout, Write};
 use std::{thread, time};
 
-use termion::{clear, color, cursor, style, terminal_size};
+use nalgebra::Vector2;
+use palette::{Gradient, Lch, LinSrgb, Shade, Srgb};
 use termion::raw::{IntoRawMode, RawTerminal};
-use nalgebra::{Vector2};
-use palette::{Srgb, LinSrgb, Lch, Gradient, Shade};
+use termion::{clear, color, cursor, style, terminal_size};
 
 pub struct TerminalRect {
     columns: i32,
@@ -19,7 +19,12 @@ pub struct TerminalRect {
 }
 
 impl TerminalRect {
-    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool, number_of_states: usize) -> io::Result<Self> {
+    pub fn new(
+        sleep_ms: u64,
+        fill_terminal: bool,
+        draw_ant: bool,
+        number_of_states: usize,
+    ) -> io::Result<Self> {
         let size = terminal_size()?;
 
         let (columns, rows) = match fill_terminal {
@@ -85,7 +90,9 @@ impl TerminalRect {
         ant_position: Vector2<i32>,
         board: &HashMap<Vector2<i32>, usize>,
     ) -> io::Result<()> {
-        if !((1 <= cell_location.0) && (cell_location.0 <= self.columns) && (1 <= cell_location.1)
+        if !((1 <= cell_location.0)
+            && (cell_location.0 <= self.columns)
+            && (1 <= cell_location.1)
             && (cell_location.1 <= self.rows))
         {
             return Ok(());
@@ -145,12 +152,12 @@ impl TerminalRect {
 
     fn generate_colors(number_of_states: usize) -> Vec<(u8, u8, u8)> {
         let mut colors: Vec<(u8, u8, u8)> = Vec::new();
-        colors.push((255,255,255)); //First color is always white
+        colors.push((255, 255, 255)); //First color is always white
 
         let gradient = Gradient::new(vec![
             Lch::from(LinSrgb::new(0.1, 0.1, 1.0)),
             Lch::from(LinSrgb::new(0.1, 1.0, 0.1)),
-            Lch::from(LinSrgb::new(1.0, 0.1, 0.1))
+            Lch::from(LinSrgb::new(1.0, 0.1, 0.1)),
         ]);
         //let colors = gradient.take(number_of_states);
         for (n, color) in gradient.take(number_of_states - 1).enumerate() {
@@ -161,15 +168,19 @@ impl TerminalRect {
             } else {
                 color
             };
-            colors.push(Srgb::from_linear(color.into()).into_format().into_components());
+            colors.push(
+                Srgb::from_linear(color.into())
+                    .into_format()
+                    .into_components(),
+            );
         }
 
         colors.clone()
     }
 }
 
-impl Drop for TerminalRect{
-    fn drop(&mut self){
+impl Drop for TerminalRect {
+    fn drop(&mut self) {
         let mut out = self.stdout.borrow_mut();
         let _ = write!(
             out,

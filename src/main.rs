@@ -1,13 +1,13 @@
 #[macro_use]
 extern crate clap;
-extern crate termion;
-extern crate palette;
 extern crate nalgebra;
+extern crate palette;
+extern crate termion;
 
 use clap::{App, Arg};
 
-mod terminal_rect;
 mod simulator_rect;
+mod terminal_rect;
 
 fn main() {
     let matches = App::new("Langton's Ant")
@@ -69,9 +69,12 @@ N - No change",
     let fill_terminal = matches.is_present("fillterminal");
     let draw_ant = !matches.is_present("invisibleant");
 
-
-
-    let terminal = match terminal_rect::TerminalRect::new(sleep_ms, fill_terminal, draw_ant, rotations.len()) {
+    let terminal = match terminal_rect::TerminalRect::new(
+        sleep_ms,
+        fill_terminal,
+        draw_ant,
+        rotations.len(),
+    ) {
         Ok(terminal) => terminal,
         Err(_) => {
             println!("Error acquiring stdout.");
