@@ -13,7 +13,7 @@ fn main() {
     let matches = App::new("Langton's Ant")
         .version(crate_version!())
         .about("Simulates Langton's Ant in the terminal")
-        .author("Alex Yankov")
+        .author("Alexander Yankov")
         .arg(
             Arg::with_name("sleep")
                 .short("s")
