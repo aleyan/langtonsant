@@ -171,7 +171,7 @@ impl Canvas {
 impl Drop for Canvas{
     fn drop(&mut self){
         let mut out = self.stdout.borrow_mut();
-        write!(
+        let _ = write!(
             out,
             "{}{}{}",
             cursor::Goto(1, (self.rows + 1) as u16),

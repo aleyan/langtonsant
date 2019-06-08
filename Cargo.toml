@@ -2,6 +2,7 @@
 name = "langtonsant"
 version = "0.1.0"
 authors = ["Alexander Yankov <yankov.alex@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 termion = "1.5.2"
