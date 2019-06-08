@@ -1,7 +1,7 @@
 use nalgebra::{Vector2, Matrix2};//, Vector3, Matrix3};
 use std::collections::HashMap;
 
-pub struct Simulator {
+pub struct SimulatorRect {
     states: Vec<Matrix2<i32>>,
     // Use a HashMap because it grows O(n) with number of steps taken by ant.
     pub board: HashMap<Vector2<i32>, usize>,
@@ -9,7 +9,7 @@ pub struct Simulator {
     pub ant_direction: Vector2<i32>,
 }
 
-impl Simulator {
+impl SimulatorRect {
     pub fn new(rotations: &str) -> Result<Self, &'static str>{
         let mut states: Vec<Matrix2<i32>> = Vec::new();
         for c in rotations.chars() {
@@ -25,11 +25,11 @@ impl Simulator {
             states.push(rotation);
         }
 
-        Ok(Simulator{states: states.clone(),
-                    board: HashMap::new(), 
-                    ant_position: Vector2::new(0, 0),  // Ant is at origin
-                    ant_direction: Vector2::new(-1, 0),// facing left
-                })
+        Ok(SimulatorRect{states: states.clone(),
+                         board: HashMap::new(), 
+                         ant_position: Vector2::new(0, 0),  // Ant is at origin
+                         ant_direction: Vector2::new(-1, 0),// facing left
+                         })
     }
 
     pub fn simulate(&mut self){

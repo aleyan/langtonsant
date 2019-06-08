@@ -9,7 +9,7 @@ use termion::raw::{IntoRawMode, RawTerminal};
 use nalgebra::{Vector2};
 use palette::{Srgb, LinSrgb, Lch, Gradient, Shade};
 
-pub struct Canvas {
+pub struct TerminalRect {
     columns: i32,
     rows: i32,
     sleep_ms: u64,
@@ -18,7 +18,7 @@ pub struct Canvas {
     stdout: RefCell<RawTerminal<Stdout>>,
 }
 
-impl Canvas {
+impl TerminalRect {
     pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool, number_of_states: usize) -> io::Result<Self> {
         let size = terminal_size()?;
 
@@ -49,12 +49,12 @@ impl Canvas {
             }
         }
         stdout.flush()?;
-        Ok(Canvas {
+        Ok(TerminalRect {
             columns,
             rows,
             sleep_ms,
             draw_ant,
-            colors: Canvas::generate_colors(number_of_states),
+            colors: TerminalRect::generate_colors(number_of_states),
             stdout: RefCell::new(stdout),
         })
     }
@@ -168,7 +168,7 @@ impl Canvas {
     }
 }
 
-impl Drop for Canvas{
+impl Drop for TerminalRect{
     fn drop(&mut self){
         let mut out = self.stdout.borrow_mut();
         let _ = write!(

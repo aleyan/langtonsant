@@ -6,8 +6,8 @@ extern crate nalgebra;
 
 use clap::{App, Arg};
 
-mod canvas;
-mod simulator;
+mod terminal_rect;
+mod simulator_rect;
 
 fn main() {
     let matches = App::new("Langton's Ant")
@@ -71,17 +71,17 @@ N - No change",
 
 
 
-    let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant, rotations.len()) {
-        Ok(canvas) => canvas,
+    let terminal = match terminal_rect::TerminalRect::new(sleep_ms, fill_terminal, draw_ant, rotations.len()) {
+        Ok(terminal) => terminal,
         Err(_) => {
             println!("Error acquiring stdout.");
             return;
         }
     };
 
-    let mut sim = simulator::Simulator::new(rotations).unwrap();
+    let mut sim = simulator_rect::SimulatorRect::new(rotations).unwrap();
     for _ in 0..max_steps {
         sim.simulate();
-        let _ = canvas.draw(&sim.board, sim.ant_position, sim.ant_direction);
+        let _ = terminal.draw(&sim.board, sim.ant_position, sim.ant_direction);
     }
 }
