@@ -5,7 +5,7 @@ authors = ["Alexander Yankov <yankov.alex@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-termion = "1.5.2"
+termion = "1.5.3"
 clap = "2.33.0"
 palette = "0.4.1"
-nalgebra = "0.18.0"
+nalgebra = "0.18.1"
