@@ -1,7 +1,7 @@
 use clap::{Arg, ArgAction, Command};
-extern crate termion;
-extern crate palette;
 extern crate nalgebra;
+extern crate palette;
+extern crate termion;
 
 mod canvas;
 mod simulator;
@@ -61,7 +61,7 @@ N - No change",
                 .help("Do not draw the ant."),
         )
         .get_matches();
-    
+
     let sleep_ms = *matches.get_one::<u64>("sleep").unwrap();
     let max_steps = *matches.get_one::<u64>("steps").unwrap();
     let rotations = matches.get_one::<String>("rotations").unwrap();

@@ -1,13 +1,13 @@
-use std::collections::HashMap;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::io;
 use std::io::{stdout, Stdout, Write};
 use std::{thread, time};
 
-use termion::{clear, color, cursor, style, terminal_size};
+use nalgebra::Vector2;
+use palette::{rgb::Rgb, FromColor, Lch, LinSrgb, Srgb};
 use termion::raw::{IntoRawMode, RawTerminal};
-use nalgebra::{Vector2};
-use palette::{Srgb, LinSrgb, Lch, FromColor, rgb::Rgb};
+use termion::{clear, color, cursor, style, terminal_size};
 
 pub struct Canvas {
     columns: i32,
@@ -19,7 +19,12 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new(sleep_ms: u64, fill_terminal: bool, draw_ant: bool, number_of_states: usize) -> io::Result<Self> {
+    pub fn new(
+        sleep_ms: u64,
+        fill_terminal: bool,
+        draw_ant: bool,
+        number_of_states: usize,
+    ) -> io::Result<Self> {
         let size = terminal_size()?;
 
         let (columns, rows) = match fill_terminal {
@@ -85,7 +90,9 @@ impl Canvas {
         ant_position: Vector2<i32>,
         board: &HashMap<Vector2<i32>, usize>,
     ) -> io::Result<()> {
-        if !((1 <= cell_location.0) && (cell_location.0 <= self.columns) && (1 <= cell_location.1)
+        if !((1 <= cell_location.0)
+            && (cell_location.0 <= self.columns)
+            && (1 <= cell_location.1)
             && (cell_location.1 <= self.rows))
         {
             return Ok(());
@@ -161,27 +168,27 @@ impl Canvas {
         // Interpolate colors manually
         let steps = number_of_states - 1;
         let base_count = base_colors.len();
-        
+
         for i in 0..steps {
             // Calculate which segment we're in and progress through it
             let segment = (i * base_count) / steps;
             let next_segment = (segment + 1) % base_count;
             let progress = (i * base_count) as f32 / steps as f32 - segment as f32;
-            
+
             // Linearly interpolate between the two base colors
             let start_color = base_colors[segment];
             let end_color = base_colors[next_segment];
-            
+
             // Interpolate in RGB space (simple but less perceptually accurate)
             let interpolated = LinSrgb::new(
                 start_color.red + (end_color.red - start_color.red) * progress,
                 start_color.green + (end_color.green - start_color.green) * progress,
                 start_color.blue + (end_color.blue - start_color.blue) * progress,
             );
-            
+
             // Convert to Lch for potential adjustment
             let mut lch = Lch::from_color(interpolated);
-            
+
             // Apply adjustments similar to original code
             if number_of_states > 9 {
                 if i % 3 == 0 {
@@ -192,25 +199,21 @@ impl Canvas {
                     lch.l = (lch.l - 20.0).max(0.0);
                 }
             }
-            
+
             // Convert back to RGB
             let adjusted_rgb: Rgb = Srgb::from_color(lch).into_format();
             let (r, g, b) = adjusted_rgb.into_components();
-            
+
             // Add to colors, scaling to 8-bit values
-            colors.push((
-                (r * 255.0) as u8,
-                (g * 255.0) as u8,
-                (b * 255.0) as u8,
-            ));
+            colors.push(((r * 255.0) as u8, (g * 255.0) as u8, (b * 255.0) as u8));
         }
 
         colors
     }
 }
 
-impl Drop for Canvas{
-    fn drop(&mut self){
+impl Drop for Canvas {
+    fn drop(&mut self) {
         let mut out = self.stdout.borrow_mut();
         let _ = write!(
             out,
