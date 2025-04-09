@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 termion = "4.0.5"
 clap = { version = "4.5.35", features = ["derive"] }
-palette = "0.4.1"
-nalgebra = "0.18.0"
+palette = "0.7.6"
+nalgebra = "0.33.2"

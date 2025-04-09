@@ -7,7 +7,7 @@ use std::{thread, time};
 use termion::{clear, color, cursor, style, terminal_size};
 use termion::raw::{IntoRawMode, RawTerminal};
 use nalgebra::{Vector2};
-use palette::{Srgb, LinSrgb, Lch, Gradient, Shade};
+use palette::{Srgb, LinSrgb, Lch, FromColor, rgb::Rgb};
 
 pub struct Canvas {
     columns: i32,
@@ -145,26 +145,67 @@ impl Canvas {
 
     fn generate_colors(number_of_states: usize) -> Vec<(u8, u8, u8)> {
         let mut colors: Vec<(u8, u8, u8)> = Vec::new();
-        colors.push((255,255,255)); //First color is always white
+        colors.push((255, 255, 255)); // First color is always white
 
-        let gradient = Gradient::new(vec![
-            Lch::from(LinSrgb::new(0.1, 0.1, 1.0)),
-            Lch::from(LinSrgb::new(0.1, 1.0, 0.1)),
-            Lch::from(LinSrgb::new(1.0, 0.1, 0.1))
-        ]);
-        //let colors = gradient.take(number_of_states);
-        for (n, color) in gradient.take(number_of_states - 1).enumerate() {
-            let color = if number_of_states > 9 && n % 3 == 0 {
-                color.lighten(0.2)
-            } else if number_of_states > 9 && n % 3 == 1 {
-                color.darken(0.2)
-            } else {
-                color
-            };
-            colors.push(Srgb::from_linear(color.into()).into_format().into_components());
+        if number_of_states <= 1 {
+            return colors;
         }
 
-        colors.clone()
+        // Define base colors
+        let base_colors = [
+            LinSrgb::new(0.1f32, 0.1, 1.0), // Blue
+            LinSrgb::new(0.1f32, 1.0, 0.1), // Green
+            LinSrgb::new(1.0f32, 0.1, 0.1), // Red
+        ];
+
+        // Interpolate colors manually
+        let steps = number_of_states - 1;
+        let base_count = base_colors.len();
+        
+        for i in 0..steps {
+            // Calculate which segment we're in and progress through it
+            let segment = (i * base_count) / steps;
+            let next_segment = (segment + 1) % base_count;
+            let progress = (i * base_count) as f32 / steps as f32 - segment as f32;
+            
+            // Linearly interpolate between the two base colors
+            let start_color = base_colors[segment];
+            let end_color = base_colors[next_segment];
+            
+            // Interpolate in RGB space (simple but less perceptually accurate)
+            let interpolated = LinSrgb::new(
+                start_color.red + (end_color.red - start_color.red) * progress,
+                start_color.green + (end_color.green - start_color.green) * progress,
+                start_color.blue + (end_color.blue - start_color.blue) * progress,
+            );
+            
+            // Convert to Lch for potential adjustment
+            let mut lch = Lch::from_color(interpolated);
+            
+            // Apply adjustments similar to original code
+            if number_of_states > 9 {
+                if i % 3 == 0 {
+                    // Lighten
+                    lch.l += 20.0;
+                } else if i % 3 == 1 {
+                    // Darken
+                    lch.l = (lch.l - 20.0).max(0.0);
+                }
+            }
+            
+            // Convert back to RGB
+            let adjusted_rgb: Rgb = Srgb::from_color(lch).into_format();
+            let (r, g, b) = adjusted_rgb.into_components();
+            
+            // Add to colors, scaling to 8-bit values
+            colors.push((
+                (r * 255.0) as u8,
+                (g * 255.0) as u8,
+                (b * 255.0) as u8,
+            ));
+        }
+
+        colors
     }
 }
 
