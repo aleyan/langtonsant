@@ -1,40 +1,37 @@
-#[macro_use]
-extern crate clap;
+use clap::{Arg, ArgAction, Command};
 extern crate termion;
 extern crate palette;
 extern crate nalgebra;
-
-use clap::{App, Arg};
 
 mod canvas;
 mod simulator;
 
 fn main() {
-    let matches = App::new("Langton's Ant")
-        .version(crate_version!())
+    let matches = Command::new("Langton's Ant")
+        .version(env!("CARGO_PKG_VERSION"))
         .about("Simulates Langton's Ant in the terminal")
         .author("Alexander Yankov")
         .arg(
-            Arg::with_name("sleep")
-                .short("s")
+            Arg::new("sleep")
+                .short('s')
                 .long("sleep")
                 .value_name("MILLISECONDS")
                 .default_value("0")
                 .help("Sets a custom sleep time between steps.")
-                .takes_value(true),
+                .value_parser(clap::value_parser!(u64)),
         )
         .arg(
-            Arg::with_name("steps")
-                .short("m")
+            Arg::new("steps")
+                .short('m')
                 .long("maxsteps")
                 .value_name("STEPS")
                 .default_value("15000")
                 .help("Maximum number of steps ant takes before stopping.")
-                .takes_value(true),
+                .value_parser(clap::value_parser!(u64)),
         )
         .arg(
-            Arg::with_name("rotations")
-                .short("r")
+            Arg::new("rotations")
+                .short('r')
                 .long("rotations")
                 .value_name("SEQUENCE")
                 .default_value("RL")
@@ -47,29 +44,29 @@ R - Turn 90 degrees to the right
 L - Turn 90 degrees to the left
 U - Turn 180 degrees
 N - No change",
-                )
-                .takes_value(true),
+                ),
         )
         .arg(
-            Arg::with_name("fillterminal")
-                .short("f")
+            Arg::new("fillterminal")
+                .short('f')
                 .long("fillterminal")
+                .action(ArgAction::SetTrue)
                 .help("Fills entire terminal. Does not skip last line."),
         )
         .arg(
-            Arg::with_name("invisibleant")
-                .short("i")
+            Arg::new("invisibleant")
+                .short('i')
                 .long("invisibleant")
+                .action(ArgAction::SetTrue)
                 .help("Do not draw the ant."),
         )
         .get_matches();
-    let sleep_ms = value_t!(matches, "sleep", u64).unwrap();
-    let max_steps = value_t!(matches, "steps", u64).unwrap();
-    let rotations = matches.value_of("rotations").unwrap();
-    let fill_terminal = matches.is_present("fillterminal");
-    let draw_ant = !matches.is_present("invisibleant");
-
-
+    
+    let sleep_ms = *matches.get_one::<u64>("sleep").unwrap();
+    let max_steps = *matches.get_one::<u64>("steps").unwrap();
+    let rotations = matches.get_one::<String>("rotations").unwrap();
+    let fill_terminal = matches.get_flag("fillterminal");
+    let draw_ant = !matches.get_flag("invisibleant");
 
     let canvas = match canvas::Canvas::new(sleep_ms, fill_terminal, draw_ant, rotations.len()) {
         Ok(canvas) => canvas,
